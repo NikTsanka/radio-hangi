@@ -50,6 +50,11 @@ class WorldRepository(private val api: RadioBrowserApi) {
         withContext(Dispatchers.IO) { runCatching { api.registerClick(uuid) } }
     }
 
+    /** Votes ("likes") for a station. Returns true when the vote was accepted. Never throws. */
+    suspend fun voteStation(uuid: String): Boolean = withContext(Dispatchers.IO) {
+        runCatching { api.vote(uuid).ok }.getOrDefault(false)
+    }
+
     private fun toStation(dto: RadioBrowserStationDto): Station = Station(
         uuid = dto.stationuuid,
         name = dto.name.ifBlank { "Unknown station" },

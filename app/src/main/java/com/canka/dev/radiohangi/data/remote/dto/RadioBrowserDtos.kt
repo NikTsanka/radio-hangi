@@ -18,6 +18,13 @@ data class RadioBrowserTagDto(
     val stationcount: Int = 0,
 )
 
+/** Radio Browser /vote/{uuid} result. */
+@Serializable
+data class RadioBrowserVoteDto(
+    val ok: Boolean = false,
+    val message: String = "",
+)
+
 /** Radio Browser /stations/search item. */
 @Serializable
 data class RadioBrowserStationDto(

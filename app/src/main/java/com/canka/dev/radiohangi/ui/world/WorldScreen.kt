@@ -23,14 +23,17 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import android.widget.Toast
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.canka.dev.radiohangi.domain.model.Country
@@ -48,6 +51,12 @@ fun WorldScreen(viewModel: WorldViewModel = viewModel(factory = WorldViewModel.F
 
     // The station whose info sheet is open (long-press), or null when none.
     var infoStation by remember { mutableStateOf<Station?>(null) }
+
+    // Surface one-shot messages (e.g. the "like" vote result) as toasts.
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.messages.collect { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
 
@@ -144,6 +153,7 @@ fun WorldScreen(viewModel: WorldViewModel = viewModel(factory = WorldViewModel.F
             onDismiss = { infoStation = null },
             onPlay = { viewModel.playStation(station) },
             onToggleFavorite = { viewModel.toggleFavorite(station) },
+            onLike = { viewModel.voteStation(station) },
         )
     }
 }

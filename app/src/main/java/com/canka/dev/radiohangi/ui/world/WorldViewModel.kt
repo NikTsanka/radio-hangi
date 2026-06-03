@@ -22,7 +22,9 @@ import com.canka.dev.radiohangi.domain.model.Tag
 import com.canka.dev.radiohangi.player.PlaybackService
 import com.canka.dev.radiohangi.player.buildStationMediaItem
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -70,6 +72,10 @@ class WorldViewModel(
 
     private val _state = MutableStateFlow(WorldUiState())
     val state = _state.asStateFlow()
+
+    // One-shot user-facing messages (e.g. the result of a "like" vote), shown as a toast.
+    private val _messages = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val messages = _messages.asSharedFlow()
 
     private var controller: MediaController? = null
     private var nextOffset = 0
@@ -185,6 +191,17 @@ class WorldViewModel(
 
     fun toggleFavorite(station: Station) {
         viewModelScope.launch { favoritesRepository.toggle(station) }
+    }
+
+    /** Casts a "like" vote for the station on Radio Browser and reports the outcome via [messages]. */
+    fun voteStation(station: Station) {
+        viewModelScope.launch {
+            val ok = repository.voteStation(station.uuid)
+            _messages.tryEmit(
+                if (ok) "Liked \"${station.name}\" 👍"
+                else "You've already liked this station recently",
+            )
+        }
     }
 
     fun playStation(station: Station) {

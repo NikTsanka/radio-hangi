@@ -3,6 +3,7 @@ package com.canka.dev.radiohangi.data.remote
 import com.canka.dev.radiohangi.data.remote.dto.RadioBrowserCountryDto
 import com.canka.dev.radiohangi.data.remote.dto.RadioBrowserStationDto
 import com.canka.dev.radiohangi.data.remote.dto.RadioBrowserTagDto
+import com.canka.dev.radiohangi.data.remote.dto.RadioBrowserVoteDto
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
@@ -36,4 +37,8 @@ interface RadioBrowserApi {
     /** Registers a play click; fire-and-forget (errors ignored by the caller). */
     @GET("url/{stationuuid}")
     suspend fun registerClick(@Path("stationuuid") uuid: String): Response<ResponseBody>
+
+    /** Casts a vote ("like") for a station. Radio Browser rate-limits repeat votes per IP. */
+    @GET("vote/{stationuuid}")
+    suspend fun vote(@Path("stationuuid") uuid: String): RadioBrowserVoteDto
 }

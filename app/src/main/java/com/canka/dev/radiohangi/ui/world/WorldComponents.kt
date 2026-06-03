@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Radio
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -34,6 +35,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -154,9 +159,12 @@ fun StationInfoSheet(
     onDismiss: () -> Unit,
     onPlay: () -> Unit,
     onToggleFavorite: () -> Unit,
+    onLike: () -> Unit,
 ) {
     val radioFallback = rememberVectorPainter(Icons.Filled.Radio)
     val context = LocalContext.current
+    // Local "liked" feedback for this sheet instance (the actual vote result toasts separately).
+    var liked by remember(station.uuid) { mutableStateOf(false) }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState()) {
         Column(
             modifier = Modifier
@@ -212,21 +220,47 @@ fun StationInfoSheet(
                 InfoLine(label = "Tags", value = station.tags.joinToString(", "))
             }
 
-            station.homepage?.takeIf { it.isNotBlank() }?.let { url ->
-                Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                val homepage = station.homepage?.takeIf { it.isNotBlank() }
+                if (homepage != null) {
+                    TextButton(
+                        onClick = {
+                            try {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, homepage.toUri()))
+                            } catch (_: ActivityNotFoundException) {
+                                // No browser available — ignore.
+                            }
+                        },
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Visit website")
+                    }
+                }
+                Spacer(Modifier.weight(1f))
+                // "Like" votes for the station on Radio Browser (one tap per sheet).
                 TextButton(
                     onClick = {
-                        try {
-                            context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
-                        } catch (_: ActivityNotFoundException) {
-                            // No browser available — ignore.
+                        if (!liked) {
+                            onLike()
+                            liked = true
                         }
                     },
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(
+                        imageVector = Icons.Filled.ThumbUp,
+                        contentDescription = "Like this station",
+                        modifier = Modifier.size(18.dp),
+                        tint = if (liked) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                     Spacer(Modifier.width(6.dp))
-                    Text("Visit website")
+                    Text(if (liked) "Liked" else "Like")
                 }
             }
 
