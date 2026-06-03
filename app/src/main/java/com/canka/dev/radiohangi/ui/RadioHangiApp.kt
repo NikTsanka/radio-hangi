@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Lyrics
@@ -43,6 +44,7 @@ import androidx.navigation.compose.rememberNavController
 import com.canka.dev.radiohangi.RadioHangiApplication
 import com.canka.dev.radiohangi.player.rememberManagedMediaController
 import com.canka.dev.radiohangi.ui.navigation.Destination
+import com.canka.dev.radiohangi.ui.navigation.EQUALIZER_ROUTE
 import com.canka.dev.radiohangi.ui.navigation.LYRICS_ROUTE
 import com.canka.dev.radiohangi.ui.navigation.RadioHangiNavHost
 import com.canka.dev.radiohangi.ui.radio.ConnectionIndicator
@@ -65,6 +67,8 @@ fun RadioHangiApp(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val rawRoute = backStackEntry?.destination?.route
     val isLyrics = rawRoute == LYRICS_ROUTE
+    val isEqualizer = rawRoute == EQUALIZER_ROUTE
+    val isSubPage = isLyrics || isEqualizer // full-screen pages with a back arrow (not tabs)
     val current = Destination.fromRoute(rawRoute)
 
     // Shared across the Radio screen and the Lyrics page so both reflect the same now-playing
@@ -88,7 +92,7 @@ fun RadioHangiApp(
     val controller by rememberManagedMediaController()
     BackHandler {
         when {
-            isLyrics -> navController.popBackStack()
+            isSubPage -> navController.popBackStack()
             current != Destination.Radio -> navController.navigateToTab(Destination.Radio)
             exitArmed -> {
                 controller?.run {
@@ -112,8 +116,8 @@ fun RadioHangiApp(
         topBar = {
             CenterAlignedTopAppBar(
                 navigationIcon = {
-                    if (isLyrics) {
-                        // Lyrics page: a back arrow returns to the Radio screen.
+                    if (isSubPage) {
+                        // Sub-page (Lyrics / Equalizer): a back arrow returns to the Radio screen.
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
@@ -136,24 +140,28 @@ fun RadioHangiApp(
                         }
                     }
                 },
-                // Center: "Lyrics" on the lyrics page, the screen name on World, empty on Radio.
+                // Center: the sub-page name, the screen name on World, empty on Radio.
                 title = {
                     when {
                         isLyrics -> Text("Lyrics")
+                        isEqualizer -> Text("Equalizer")
                         current != Destination.Radio -> Text("World Radio")
                     }
                 },
                 actions = {
-                    // Home (jump to the Zeno home stream) + Lyrics page shortcut, only on Radio.
-                    if (current == Destination.Radio && !isLyrics) {
+                    // Home / Lyrics / Equalizer shortcuts, only on the Radio tab.
+                    if (current == Destination.Radio && !isSubPage) {
                         IconButton(onClick = radioViewModel::playHomeRadio) {
                             Icon(Icons.Filled.Home, contentDescription = "Home radio")
                         }
                         IconButton(onClick = { navController.navigate(LYRICS_ROUTE) }) {
                             Icon(Icons.Filled.Lyrics, contentDescription = "Lyrics")
                         }
+                        IconButton(onClick = { navController.navigate(EQUALIZER_ROUTE) }) {
+                            Icon(Icons.Filled.GraphicEq, contentDescription = "Equalizer")
+                        }
                     }
-                    if (!isLyrics) {
+                    if (!isSubPage) {
                         IconButton(onClick = onCycleTheme) {
                             Icon(
                                 imageVector = themeIcon(themeMode),

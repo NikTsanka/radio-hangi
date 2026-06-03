@@ -9,6 +9,7 @@ import com.canka.dev.radiohangi.data.repository.FavoritesRepository
 import com.canka.dev.radiohangi.data.repository.RadioRepository
 import com.canka.dev.radiohangi.data.repository.RecentsRepository
 import com.canka.dev.radiohangi.data.repository.WorldRepository
+import com.canka.dev.radiohangi.player.EqualizerController
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -64,4 +65,7 @@ class AppContainer(context: Context) {
     val worldRepository: WorldRepository = WorldRepository(radioBrowserApi)
     val favoritesRepository: FavoritesRepository = FavoritesRepository(context.applicationContext, json)
     val recentsRepository: RecentsRepository = RecentsRepository(context.applicationContext, json)
+
+    // Audio equalizer bound to the playback session (PlaybackService wires the session id).
+    val equalizerController: EqualizerController = EqualizerController()
 }

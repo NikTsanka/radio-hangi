@@ -1,6 +1,7 @@
 package com.canka.dev.radiohangi.player
 
 import android.content.Intent
+import android.media.AudioManager
 import androidx.core.net.toUri
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -49,6 +50,9 @@ class PlaybackService : MediaSessionService() {
     private val radioRepository by lazy {
         (application as RadioHangiApplication).container.radioRepository
     }
+    private val equalizerController by lazy {
+        (application as RadioHangiApplication).container.equalizerController
+    }
 
     // Current World station's favicon (art fallback) + last applied ICY title; tracked so we can
     // reset the art when the song changes and skip duplicate metadata events.
@@ -84,6 +88,11 @@ class PlaybackService : MediaSessionService() {
             .setHandleAudioBecomingNoisy(true)
             .setWakeMode(C.WAKE_MODE_NETWORK)
             .build()
+
+        // Fixed audio session id so the equalizer can attach to the player's output.
+        val audioSessionId = getSystemService(AudioManager::class.java).generateAudioSessionId()
+        player.audioSessionId = audioSessionId
+        equalizerController.bind(audioSessionId)
 
         // Preload the Main Radio (Zeno) stream so pressing play works immediately.
         player.setMediaItem(buildZenoMediaItem())
@@ -258,6 +267,7 @@ class PlaybackService : MediaSessionService() {
 
     override fun onDestroy() {
         scope.cancel()
+        equalizerController.release()
         mediaSession?.run {
             player.release()
             release()
