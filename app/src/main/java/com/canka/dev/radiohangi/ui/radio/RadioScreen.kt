@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
@@ -274,6 +275,16 @@ private fun SecondaryActions(
             }
         }
 
+        // Find the current song on YouTube.
+        TextButton(
+            onClick = { findCurrentSong(context, currentTrack) },
+            enabled = currentTrack?.song?.isNotBlank() == true,
+        ) {
+            Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("Find")
+        }
+
         // Share the current song.
         TextButton(
             onClick = { shareCurrentSong(context, currentTrack) },
@@ -292,6 +303,19 @@ private fun sleepTimerLabel(option: SleepTimerOption, remainingMs: Long): String
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
     return "%d:%02d".format(minutes, seconds)
+}
+
+/** Opens a YouTube search for the current song (falls back to whatever handles the web URL). */
+private fun findCurrentSong(context: android.content.Context, track: Track?) {
+    track ?: return
+    val query = listOf(track.artist, track.song)
+        .filter { it.isNotBlank() }
+        .joinToString(" ")
+        .ifBlank { return }
+    val url = "https://www.youtube.com/results?search_query=" + android.net.Uri.encode(query)
+    runCatching {
+        context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+    }
 }
 
 private fun shareCurrentSong(context: android.content.Context, track: Track?) {
