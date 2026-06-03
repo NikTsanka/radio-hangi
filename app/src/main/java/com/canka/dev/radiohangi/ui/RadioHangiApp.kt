@@ -33,7 +33,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.core.graphics.ColorUtils
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -90,9 +94,12 @@ fun RadioHangiApp(
     val appContainer = (context.applicationContext as RadioHangiApplication).container
     val connection by appContainer.radioRepository.connection.collectAsStateWithLifecycle()
 
-    // Tint the app-bar and bottom-nav icons with a color pulled from the playing album art.
+    // Tint the app-bar and bottom-nav icons with a color pulled from the playing album art,
+    // adjusted for contrast so dark covers stay visible on a dark theme (and vice versa).
     val ui by radioViewModel.uiState.collectAsStateWithLifecycle()
-    val accent = rememberDominantColor(ui.current?.coverUrl, fallback = MaterialTheme.colorScheme.primary)
+    val darkTheme = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val rawAccent = rememberDominantColor(ui.current?.coverUrl, fallback = MaterialTheme.colorScheme.primary)
+    val accent = readableAccent(rawAccent, darkTheme)
 
     // A controller so the explicit double-back "exit" can stop playback (swipe-from-recents
     // still keeps playing — that path is handled by PlaybackService.onTaskRemoved).
@@ -228,6 +235,18 @@ private fun NavHostController.navigateToTab(dest: Destination) {
         launchSingleTop = true
         restoreState = true
     }
+}
+
+/**
+ * Clamps [color]'s lightness into a readable band for the current theme so an album-derived
+ * tint never blends into the background — bright covers get darkened on a light theme, dark
+ * covers get lightened on a dark theme, while the hue/saturation (the album's identity) stays.
+ */
+private fun readableAccent(color: Color, darkTheme: Boolean): Color {
+    val hsl = FloatArray(3)
+    ColorUtils.colorToHSL(color.toArgb(), hsl)
+    hsl[2] = if (darkTheme) hsl[2].coerceIn(0.62f, 0.85f) else hsl[2].coerceIn(0.20f, 0.45f)
+    return Color(ColorUtils.HSLToColor(hsl))
 }
 
 private fun themeIcon(mode: ThemeMode): ImageVector = when (mode) {
