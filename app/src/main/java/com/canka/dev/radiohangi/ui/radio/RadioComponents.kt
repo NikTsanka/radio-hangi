@@ -117,9 +117,10 @@ fun AmbientBackground(coverUrl: String?, modifier: Modifier = Modifier) {
 /**
  * Extracts a dominant/vibrant color from [coverUrl] (via Coil + Palette, off the main thread)
  * and animates toward it; returns [fallback] until the art loads or when there's no cover.
+ * Shared by the ambient background and the app-bar / bottom-nav icon tint.
  */
 @Composable
-private fun rememberDominantColor(coverUrl: String?, fallback: Color): Color {
+fun rememberDominantColor(coverUrl: String?, fallback: Color): Color {
     val context = LocalContext.current
     var target by remember { mutableStateOf(fallback) }
     LaunchedEffect(coverUrl, fallback) {

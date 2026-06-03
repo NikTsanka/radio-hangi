@@ -21,8 +21,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +51,7 @@ import com.canka.dev.radiohangi.ui.navigation.LYRICS_ROUTE
 import com.canka.dev.radiohangi.ui.navigation.RadioHangiNavHost
 import com.canka.dev.radiohangi.ui.radio.ConnectionIndicator
 import com.canka.dev.radiohangi.ui.radio.RadioViewModel
+import com.canka.dev.radiohangi.ui.radio.rememberDominantColor
 import com.canka.dev.radiohangi.ui.theme.ThemeMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -87,6 +90,10 @@ fun RadioHangiApp(
     val appContainer = (context.applicationContext as RadioHangiApplication).container
     val connection by appContainer.radioRepository.connection.collectAsStateWithLifecycle()
 
+    // Tint the app-bar and bottom-nav icons with a color pulled from the playing album art.
+    val ui by radioViewModel.uiState.collectAsStateWithLifecycle()
+    val accent = rememberDominantColor(ui.current?.coverUrl, fallback = MaterialTheme.colorScheme.primary)
+
     // A controller so the explicit double-back "exit" can stop playback (swipe-from-recents
     // still keeps playing — that path is handled by PlaybackService.onTaskRemoved).
     val controller by rememberManagedMediaController()
@@ -115,6 +122,11 @@ fun RadioHangiApp(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
+                // Icons (back / Home / Lyrics / Equalizer / theme) adopt the album-art color.
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    navigationIconContentColor = accent,
+                    actionIconContentColor = accent,
+                ),
                 navigationIcon = {
                     if (isSubPage) {
                         // Sub-page (Lyrics / Equalizer): a back arrow returns to the Radio screen.
@@ -189,6 +201,12 @@ fun RadioHangiApp(
                             onClick = { navController.navigateToTab(dest) },
                             icon = { Icon(dest.icon, contentDescription = dest.label) },
                             label = { Text(dest.label) },
+                            // Selected tab takes the album-art color.
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = accent,
+                                selectedTextColor = accent,
+                                indicatorColor = accent.copy(alpha = 0.18f),
+                            ),
                         )
                     }
                 }
