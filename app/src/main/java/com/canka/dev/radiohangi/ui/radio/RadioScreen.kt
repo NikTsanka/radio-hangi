@@ -98,7 +98,7 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
             SpinningDisc(
                 coverUrl = current?.coverUrl,
                 isPlaying = playback.isPlaying,
-                modifier = Modifier.fillMaxWidth(0.72f).aspectRatio(1f),
+                modifier = Modifier.fillMaxWidth(0.82f).aspectRatio(1f),
             )
 
             Spacer(Modifier.height(16.dp))
