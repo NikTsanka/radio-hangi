@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Stylized vinyl record for the Android 12+ splash icon. The disc sits within the inner
+  192/288 "safe circle" so the system mask never clips it. The real album cover spins on
+  the in-app Compose splash that follows.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Vinyl body -->
+    <path
+        android:fillColor="#101010"
+        android:pathData="M54,20 a34,34 0 1,0 0,68 a34,34 0 1,0 0,-68 Z" />
+
+    <!-- Grooves -->
+    <path
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.6"
+        android:pathData="M54,25 a29,29 0 1,0 0,58 a29,29 0 1,0 0,-58 Z" />
+    <path
+        android:strokeColor="#2AFFFFFF"
+        android:strokeWidth="0.6"
+        android:pathData="M54,30 a24,24 0 1,0 0,48 a24,24 0 1,0 0,-48 Z" />
+    <path
+        android:strokeColor="#20FFFFFF"
+        android:strokeWidth="0.6"
+        android:pathData="M54,35 a19,19 0 1,0 0,38 a19,19 0 1,0 0,-38 Z" />
+
+    <!-- Gold center label (matches the app's accent) -->
+    <path
+        android:fillColor="#C9A96E"
+        android:pathData="M54,41 a13,13 0 1,0 0,26 a13,13 0 1,0 0,-26 Z" />
+
+    <!-- Spindle hole -->
+    <path
+        android:fillColor="#101010"
+        android:pathData="M54,51.5 a2.5,2.5 0 1,0 0,5 a2.5,2.5 0 1,0 0,-5 Z" />
+</vector>

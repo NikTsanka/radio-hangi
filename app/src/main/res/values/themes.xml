@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.RadioHangi" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Android 12+ splash screen: a vinyl record on a dark backdrop, instead of the plain
+         launcher (cover) icon. Handed off to Theme.RadioHangi once the activity is ready. -->
+    <style name="Theme.RadioHangi.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_bg</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_vinyl</item>
+        <item name="postSplashScreenTheme">@style/Theme.RadioHangi</item>
+    </style>
+</resources>
