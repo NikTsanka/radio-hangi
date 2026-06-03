@@ -1,5 +1,6 @@
 package com.canka.dev.radiohangi.ui.radio
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -39,7 +40,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -49,16 +52,25 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.palette.graphics.Palette
+import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
+import coil3.toBitmap
 import com.canka.dev.radiohangi.R
 import com.canka.dev.radiohangi.domain.model.ConnectionStatus
 import com.canka.dev.radiohangi.domain.model.LyricsState
 import com.canka.dev.radiohangi.domain.model.Station
 import com.canka.dev.radiohangi.domain.model.Track
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Full-bleed blurred album art used as an ambient background (mirrors the web version).
@@ -67,6 +79,8 @@ import com.canka.dev.radiohangi.domain.model.Track
  */
 @Composable
 fun AmbientBackground(coverUrl: String?, modifier: Modifier = Modifier) {
+    // Pull a dominant color out of the cover so the ambiance subtly matches the album art.
+    val accent = rememberDominantColor(coverUrl, fallback = MaterialTheme.colorScheme.primary)
     Box(modifier = modifier.fillMaxSize()) {
         AsyncImage(
             model = coverUrl,
@@ -83,7 +97,46 @@ fun AmbientBackground(coverUrl: String?, modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background.copy(alpha = 0.72f)),
         )
+        // Dynamic color wash from the album art — strongest at the top/bottom edges.
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            accent.copy(alpha = 0.38f),
+                            Color.Transparent,
+                            accent.copy(alpha = 0.20f),
+                        ),
+                    ),
+                ),
+        )
     }
+}
+
+/**
+ * Extracts a dominant/vibrant color from [coverUrl] (via Coil + Palette, off the main thread)
+ * and animates toward it; returns [fallback] until the art loads or when there's no cover.
+ */
+@Composable
+private fun rememberDominantColor(coverUrl: String?, fallback: Color): Color {
+    val context = LocalContext.current
+    var target by remember { mutableStateOf(fallback) }
+    LaunchedEffect(coverUrl, fallback) {
+        target = fallback
+        if (coverUrl.isNullOrBlank()) return@LaunchedEffect
+        val request = ImageRequest.Builder(context)
+            .data(coverUrl)
+            .allowHardware(false) // Palette needs to read pixels off the bitmap
+            .build()
+        val result = SingletonImageLoader.get(context).execute(request)
+        val bitmap = (result as? SuccessResult)?.image?.toBitmap() ?: return@LaunchedEffect
+        val palette = withContext(Dispatchers.Default) { Palette.from(bitmap).generate() }
+        val swatch = palette.vibrantSwatch ?: palette.dominantSwatch ?: palette.mutedSwatch
+        if (swatch != null) target = Color(swatch.rgb)
+    }
+    val animated by animateColorAsState(targetValue = target, label = "dominant-color")
+    return animated
 }
 
 /** Square album art with rounded corners; falls back to the bundled cover.png. */

@@ -24,6 +24,7 @@ kotlinxCoroutines = "1.9.0"        # Structured concurrency for all IO/SSE work
 
 # --- Images ---
 coil = "3.1.0"                     # Async image loading for album art / station favicons (Compose)
+palette = "1.0.0"                  # Extract a dominant color from album art for dynamic theming
 
 # --- Local persistence (favorites: mirrors web localStorage wr-favs / wr-favs-data) ---
 datastore = "1.1.1"                # Preferences DataStore; favorites stored as serialized JSON
@@ -76,6 +77,7 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Images
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+androidx-palette = { group = "androidx.palette", name = "palette-ktx", version.ref = "palette" }
 
 # Persistence
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }

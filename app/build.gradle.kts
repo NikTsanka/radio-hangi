@@ -77,6 +77,7 @@ dependencies {
     // --- Images ---
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+    implementation(libs.androidx.palette) // dominant-color extraction for dynamic theming
 
     // --- Persistence (favorites) ---
     implementation(libs.androidx.datastore.preferences)
