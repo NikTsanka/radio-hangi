@@ -110,6 +110,21 @@ class RadioViewModel(
     /** Art + lyrics resolved from a World station's ICY stream title (when it broadcasts one). */
     private val _stationNp = MutableStateFlow(StationNowPlaying())
 
+    /**
+     * The full [Station] currently playing, resolved by media id from recents/favorites (every
+     * played station is recorded in recents, so its complete object is retrievable here). Null
+     * for the Zeno home stream, which isn't a favoritable World station.
+     */
+    val currentStation: StateFlow<Station?> =
+        combine(
+            _currentItem,
+            recentsRepository.recents,
+            favoritesRepository.favorites,
+        ) { item, recents, favorites ->
+            if (item == null || item.mediaId == ZENO_MEDIA_ID) null
+            else (recents + favorites).firstOrNull { it.uuid == item.mediaId }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
     /** Zeno home-stream now-playing (SSE song + Deezer art + lyrics). */
     private val zenoState: Flow<RadioUiState> =
         combine(
@@ -271,6 +286,12 @@ class RadioViewModel(
         c.prepare()
         c.play()
         viewModelScope.launch { recentsRepository.add(station) }
+    }
+
+    /** Toggle the currently-playing World station in favorites (no-op for the Zeno home stream). */
+    fun toggleFavoriteCurrent() {
+        val station = currentStation.value ?: return
+        viewModelScope.launch { favoritesRepository.toggle(station) }
     }
 
     /** Switch back to the Zeno "home" radio and play it (used by the Home Radio button). */

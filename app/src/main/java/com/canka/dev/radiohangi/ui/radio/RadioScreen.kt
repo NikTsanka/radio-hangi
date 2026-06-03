@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
@@ -60,6 +62,7 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
     val sleep by viewModel.sleep.collectAsStateWithLifecycle()
     val quickStations by viewModel.quickStations.collectAsStateWithLifecycle()
     val favoriteUuids by viewModel.favoriteUuids.collectAsStateWithLifecycle()
+    val currentStation by viewModel.currentStation.collectAsStateWithLifecycle()
 
     val current = ui.current
 
@@ -129,10 +132,14 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
                 hasError = playback.state == PlaybackState.Error,
                 volume = playback.volume,
                 isMuted = playback.isMuted,
+                // Favorite the currently-playing World station (hidden for the Zeno home stream).
+                showFavorite = currentStation != null,
+                isFavorite = currentStation?.uuid in favoriteUuids,
                 onPlayPause = viewModel::togglePlayPause,
                 onRetry = viewModel::retry,
                 onVolumeChange = viewModel::setVolume,
                 onToggleMute = viewModel::toggleMute,
+                onToggleFavorite = viewModel::toggleFavoriteCurrent,
             )
 
             Spacer(Modifier.height(4.dp))
@@ -154,10 +161,13 @@ private fun PlayerControls(
     hasError: Boolean,
     volume: Float,
     isMuted: Boolean,
+    showFavorite: Boolean,
+    isFavorite: Boolean,
     onPlayPause: () -> Unit,
     onRetry: () -> Unit,
     onVolumeChange: (Float) -> Unit,
     onToggleMute: () -> Unit,
+    onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -213,6 +223,17 @@ private fun PlayerControls(
                 valueRange = 0f..1f,
                 modifier = Modifier.weight(1f),
             )
+            // Favorite toggle for the playing World station, to the right of the volume slider.
+            if (showFavorite) {
+                IconButton(onClick = onToggleFavorite) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                        tint = if (isFavorite) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }
