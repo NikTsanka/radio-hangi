@@ -180,7 +180,7 @@ private fun CountryDropdown(
     Box(modifier = modifier) {
         OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = selected?.name ?: "All countries",
+                text = selected?.let { "${it.flagPrefix}${it.name}" } ?: "All countries",
                 maxLines = 1,
                 modifier = Modifier.weight(1f),
             )
@@ -193,7 +193,7 @@ private fun CountryDropdown(
             )
             countries.forEach { country ->
                 DropdownMenuItem(
-                    text = { Text("${country.name} (${country.stationCount})") },
+                    text = { Text("${country.flagPrefix}${country.name} (${country.stationCount})") },
                     onClick = { onSelect(country); expanded = false },
                 )
             }
