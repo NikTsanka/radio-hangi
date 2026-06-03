@@ -53,7 +53,7 @@ fun SplashScreenContent(onFinished: () -> Unit, holdMillis: Long = 2_500L) {
             SpinningDisc(
                 coverUrl = null,
                 isPlaying = true,
-                modifier = Modifier.size(220.dp),
+                modifier = Modifier.size(280.dp),
             )
             Spacer(Modifier.height(28.dp))
             Text(
