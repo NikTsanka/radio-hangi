@@ -46,6 +46,9 @@ fun WorldScreen(viewModel: WorldViewModel = viewModel(factory = WorldViewModel.F
     val state by viewModel.state.collectAsStateWithLifecycle()
     val favoriteUuids = state.favoriteUuids
 
+    // The station whose info sheet is open (long-press), or null when none.
+    var infoStation by remember { mutableStateOf<Station?>(null) }
+
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
 
         OutlinedTextField(
@@ -127,9 +130,21 @@ fun WorldScreen(viewModel: WorldViewModel = viewModel(factory = WorldViewModel.F
                     onPlay = viewModel::playStation,
                     onToggleFavorite = viewModel::toggleFavorite,
                     onLoadMore = viewModel::loadMore,
+                    onShowInfo = { infoStation = it },
                 )
             }
         }
+    }
+
+    // Long-pressing a station opens its details.
+    infoStation?.let { station ->
+        StationInfoSheet(
+            station = station,
+            isFavorite = station.uuid in favoriteUuids,
+            onDismiss = { infoStation = null },
+            onPlay = { viewModel.playStation(station) },
+            onToggleFavorite = { viewModel.toggleFavorite(station) },
+        )
     }
 }
 
@@ -142,6 +157,7 @@ private fun StationList(
     onPlay: (Station) -> Unit,
     onToggleFavorite: (Station) -> Unit,
     onLoadMore: () -> Unit,
+    onShowInfo: (Station) -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(stations, key = { it.uuid }) { station ->
@@ -150,6 +166,7 @@ private fun StationList(
                 isFavorite = station.uuid in favoriteUuids,
                 onPlay = { onPlay(station) },
                 onToggleFavorite = { onToggleFavorite(station) },
+                onLongPress = { onShowInfo(station) },
             )
         }
         if (showLoadMore) {
