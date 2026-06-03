@@ -1,6 +1,10 @@
 package com.canka.dev.radiohangi.ui.radio
 
 import android.content.Intent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +45,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -64,6 +70,7 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
     val quickStations by viewModel.quickStations.collectAsStateWithLifecycle()
     val favoriteUuids by viewModel.favoriteUuids.collectAsStateWithLifecycle()
     val currentStation by viewModel.currentStation.collectAsStateWithLifecycle()
+    val haptics = LocalHapticFeedback.current
 
     val current = ui.current
 
@@ -136,11 +143,17 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
                 // Favorite the currently-playing World station (hidden for the Zeno home stream).
                 showFavorite = currentStation != null,
                 isFavorite = currentStation?.uuid in favoriteUuids,
-                onPlayPause = viewModel::togglePlayPause,
+                onPlayPause = {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    viewModel.togglePlayPause()
+                },
                 onRetry = viewModel::retry,
                 onVolumeChange = viewModel::setVolume,
                 onToggleMute = viewModel::toggleMute,
-                onToggleFavorite = viewModel::toggleFavoriteCurrent,
+                onToggleFavorite = {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    viewModel.toggleFavoriteCurrent()
+                },
             )
 
             Spacer(Modifier.height(4.dp))
@@ -179,11 +192,18 @@ private fun PlayerControls(
                 enabled = !isBuffering,
                 modifier = Modifier.size(88.dp),
             ) {
-                Icon(
-                    imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                    contentDescription = if (isPlaying) "Pause" else "Play",
-                    modifier = Modifier.size(44.dp),
-                )
+                // Crossfade the transport icon for a smoother play/pause toggle.
+                AnimatedContent(
+                    targetState = isPlaying,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() },
+                    label = "play-pause",
+                ) { playing ->
+                    Icon(
+                        imageVector = if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                        contentDescription = if (playing) "Pause" else "Play",
+                        modifier = Modifier.size(44.dp),
+                    )
+                }
             }
             // Buffering ring around the transport button while the stream is connecting.
             if (isBuffering) {
