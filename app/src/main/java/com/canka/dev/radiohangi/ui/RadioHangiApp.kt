@@ -3,9 +3,11 @@ package com.canka.dev.radiohangi.ui
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BrightnessAuto
@@ -37,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.core.graphics.ColorUtils
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -47,6 +50,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.canka.dev.radiohangi.R
 import com.canka.dev.radiohangi.RadioHangiApplication
 import com.canka.dev.radiohangi.player.rememberManagedMediaController
 import com.canka.dev.radiohangi.ui.navigation.Destination
@@ -206,7 +210,18 @@ fun RadioHangiApp(
                         NavigationBarItem(
                             selected = selected,
                             onClick = { navController.navigateToTab(dest) },
-                            icon = { Icon(dest.icon, contentDescription = dest.label) },
+                            icon = {
+                                if (dest == Destination.World) {
+                                    // Full-color Earth, drawn untinted so it stays the same in every theme.
+                                    Image(
+                                        painter = painterResource(R.drawable.ic_world),
+                                        contentDescription = dest.label,
+                                        modifier = Modifier.size(24.dp),
+                                    )
+                                } else {
+                                    Icon(dest.icon, contentDescription = dest.label)
+                                }
+                            },
                             label = { Text(dest.label) },
                             // Selected tab takes the album-art color.
                             colors = NavigationBarItemDefaults.colors(
