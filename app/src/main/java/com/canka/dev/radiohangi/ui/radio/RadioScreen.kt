@@ -126,14 +126,14 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
                 maxLines = 1,
             )
 
-            // Breathing room below the band name so the equalizer doesn't feel glued to it.
-            Spacer(Modifier.height(24.dp))
-            EqualizerBars(playing = playback.isPlaying)
-
-            // Flexible spacer pushes the transport controls to the bottom.
+            // Flexible spacer pushes the controls to the bottom while keeping the now-playing
+            // art + title anchored near the top.
             Spacer(Modifier.weight(1f))
 
-            // ---- FIXED BOTTOM: transport + volume, sleep + share ----
+            // ---- FIXED BOTTOM: equalizer, transport + volume, sleep + share ----
+            EqualizerBars(playing = playback.isPlaying)
+            Spacer(Modifier.height(8.dp))
+
             PlayerControls(
                 isPlaying = playback.isPlaying,
                 isBuffering = playback.state == PlaybackState.Buffering,
