@@ -214,7 +214,7 @@ fun RadioHangiApp(
                                 if (dest == Destination.World) {
                                     // Full-color Earth, drawn untinted so it stays the same in every theme.
                                     Image(
-                                        painter = painterResource(R.drawable.ic_world),
+                                        painter = painterResource(R.drawable.earth_icon),
                                         contentDescription = dest.label,
                                         modifier = Modifier.size(24.dp),
                                     )
