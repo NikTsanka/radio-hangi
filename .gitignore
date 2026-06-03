@@ -11,3 +11,6 @@ build/
 .externalNativeBuild
 .cxx
 local.properties
+
+# Local-only planning docs (not for the public repo)
+/docs/MONETIZATION_PLAN.md
