@@ -191,7 +191,7 @@ fun MarqueeText(
     )
 }
 
-/** Animated equalizer bars; only animates while [playing]. */
+/** Animated equalizer bars; only animates while [playing] (no transition runs when paused). */
 @Composable
 fun EqualizerBars(
     playing: Boolean,
@@ -199,23 +199,29 @@ fun EqualizerBars(
     barCount: Int = 5,
     color: Color = MaterialTheme.colorScheme.primary,
 ) {
-    val transition = rememberInfiniteTransition(label = "equalizer")
+    // Only spin up the infinite transition while playing — when paused, the bars are static
+    // (avoids burning frames animating invisible motion behind the paused UI).
+    val transition = if (playing) rememberInfiniteTransition(label = "equalizer") else null
     Row(
         modifier = modifier.height(24.dp),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         repeat(barCount) { i ->
-            val fraction by transition.animateFloat(
-                initialValue = 0.25f,
-                targetValue = 1f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 350 + i * 90),
-                    repeatMode = RepeatMode.Reverse,
-                ),
-                label = "bar$i",
-            )
-            val h = if (playing) fraction else 0.25f
+            val h = if (transition != null) {
+                val fraction by transition.animateFloat(
+                    initialValue = 0.25f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 350 + i * 90),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
+                    label = "bar$i",
+                )
+                fraction
+            } else {
+                0.25f
+            }
             Box(
                 modifier = Modifier
                     .width(4.dp)

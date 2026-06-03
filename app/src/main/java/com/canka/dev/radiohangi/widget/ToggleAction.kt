@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * Play/Pause handler for the widget button. Connects a short-lived [MediaController] to the
@@ -26,9 +27,11 @@ class ToggleAction : ActionCallback {
         parameters: ActionParameters,
     ) {
         val token = SessionToken(context, ComponentName(context, PlaybackService::class.java))
-        // MediaController must be built/used on the main thread.
+        // MediaController must be built/used on the main thread. A failed connection is a no-op.
         withContext(Dispatchers.Main) {
-            val controller = MediaController.Builder(context, token).buildAsync().await(context)
+            val controller = runCatching {
+                MediaController.Builder(context, token).buildAsync().await(context)
+            }.getOrNull() ?: return@withContext
             if (controller.isPlaying) {
                 controller.pause()
             } else {
@@ -44,5 +47,13 @@ class ToggleAction : ActionCallback {
 internal suspend fun com.google.common.util.concurrent.ListenableFuture<MediaController>.await(
     context: Context,
 ): MediaController = suspendCancellableCoroutine { cont ->
-    addListener({ cont.resume(get()) }, ContextCompat.getMainExecutor(context))
+    addListener({
+        // get() can throw if the session connection failed — fail the coroutine instead of
+        // crashing the executor / hanging the continuation.
+        try {
+            cont.resume(get())
+        } catch (t: Throwable) {
+            cont.resumeWithException(t)
+        }
+    }, ContextCompat.getMainExecutor(context))
 }

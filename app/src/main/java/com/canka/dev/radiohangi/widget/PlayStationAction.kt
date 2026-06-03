@@ -35,16 +35,21 @@ class PlayStationAction : ActionCallback {
         )
 
         val token = SessionToken(context, ComponentName(context, PlaybackService::class.java))
-        // MediaController must be built/used on the main thread.
-        withContext(Dispatchers.Main) {
-            val controller = MediaController.Builder(context, token).buildAsync().await(context)
+        // MediaController must be built/used on the main thread. A failed connection is a no-op.
+        val played = withContext(Dispatchers.Main) {
+            val controller = runCatching {
+                MediaController.Builder(context, token).buildAsync().await(context)
+            }.getOrNull() ?: return@withContext false
             controller.setMediaItem(buildStationMediaItem(station))
             controller.prepare()
             controller.play()
             controller.release()
+            true
         }
 
-        (context.applicationContext as RadioHangiApplication).container.recentsRepository.add(station)
+        if (played) {
+            (context.applicationContext as RadioHangiApplication).container.recentsRepository.add(station)
+        }
     }
 
     companion object {

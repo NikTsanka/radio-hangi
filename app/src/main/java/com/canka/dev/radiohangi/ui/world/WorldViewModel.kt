@@ -24,6 +24,7 @@ import com.canka.dev.radiohangi.player.buildStationMediaItem
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -116,7 +117,9 @@ class WorldViewModel(
                 .map { FilterKey(it.query, it.selectedCountry?.code, it.selectedTags, it.sort) }
                 .distinctUntilChanged()
                 .debounce(AppConfig.SEARCH_DEBOUNCE_MS) // 500ms debounced search
-                .collect { runSearch(reset = true) }
+                // collectLatest: a newer filter cancels an in-flight search so stale results
+                // never flash before the current ones.
+                .collectLatest { runSearch(reset = true) }
         }
     }
 

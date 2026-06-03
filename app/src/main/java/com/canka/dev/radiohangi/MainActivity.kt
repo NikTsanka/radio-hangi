@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // Android 12+ splash (vinyl icon on a dark backdrop). Must run before super.onCreate.
         installSplashScreen()
-        super.onCreate(savedInstanceState)
+    super.onCreate(savedInstanceState)
         requestNotificationPermissionIfNeeded()
         enableEdgeToEdge()
         setContent {
