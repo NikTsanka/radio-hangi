@@ -1,41 +1,41 @@
 [versions]
 # --- Build tooling (kept from the generated scaffold) ---
 agp = "9.2.1"                      # Android Gradle Plugin (ships built-in Kotlin support)
-kotlin = "2.2.10"                  # Kotlin compiler + compose/serialization plugins
-composeBom = "2026.02.01"          # Single source of truth for all androidx.compose.* versions
+kotlin = "2.4.0"                  # Kotlin compiler + compose/serialization plugins
+composeBom = "2026.05.01"          # Single source of truth for all androidx.compose.* versions
 
 # --- AndroidX runtime (bumped from scaffold defaults to match the 2026 Compose BOM) ---
-coreKtx = "1.15.0"                 # Kotlin extensions over the Android framework
-coreSplashscreen = "1.0.1"         # Backported Android 12 splash screen API (API 23+)
-activityCompose = "1.9.3"          # ComponentActivity + setContent {} integration
-lifecycleRuntimeKtx = "2.8.7"      # Lifecycle coroutines, ViewModel, collectAsStateWithLifecycle
+coreKtx = "1.19.0"                 # Kotlin extensions over the Android framework
+coreSplashscreen = "1.2.0"         # Backported Android 12 splash screen API (API 23+)
+activityCompose = "1.13.0"          # ComponentActivity + setContent {} integration
+lifecycleRuntimeKtx = "2.10.0"      # Lifecycle coroutines, ViewModel, collectAsStateWithLifecycle
 
 # --- Navigation ---
-navigationCompose = "2.8.5"        # Single-activity Navigation-Compose (Screen A / Screen B)
+navigationCompose = "2.9.8"        # Single-activity Navigation-Compose (Screen A / Screen B)
 
 # --- Media3 (modern replacement for MediaPlayer / MediaSessionCompat) ---
-media3 = "1.5.1"                   # ExoPlayer + MediaSessionService + media notification
+media3 = "1.10.1"                   # ExoPlayer + MediaSessionService + media notification
 
 # --- Networking + JSON ---
-retrofit = "2.11.0"                # Typed HTTP clients for Deezer / lyrics.ovh / Radio Browser
-okhttp = "4.12.0"                  # HTTP engine; also provides the SSE client for Zeno metadata
-kotlinxSerialization = "1.7.3"     # @Serializable models + JSON parsing (no reflection)
-kotlinxCoroutines = "1.9.0"        # Structured concurrency for all IO/SSE work
+retrofit = "3.0.0"                # Typed HTTP clients for Deezer / lyrics.ovh / Radio Browser
+okhttp = "5.4.0"                  # HTTP engine; also provides the SSE client for Zeno metadata
+kotlinxSerialization = "1.11.0"     # @Serializable models + JSON parsing (no reflection)
+kotlinxCoroutines = "1.11.0"        # Structured concurrency for all IO/SSE work
 
 # --- Images ---
-coil = "3.1.0"                     # Async image loading for album art / station favicons (Compose)
+coil = "3.5.0"                     # Async image loading for album art / station favicons (Compose)
 palette = "1.0.0"                  # Extract a dominant color from album art for dynamic theming
 
 # --- Local persistence (favorites: mirrors web localStorage wr-favs / wr-favs-data) ---
-datastore = "1.1.1"                # Preferences DataStore; favorites stored as serialized JSON
+datastore = "1.2.1"                # Preferences DataStore; favorites stored as serialized JSON
 
 # --- Home-screen widget ---
 glance = "1.1.1"                   # Jetpack Glance app widget (Compose-style, no RemoteViews/XML)
 
 # --- Test ---
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
 
 [libraries]
 # AndroidX core / lifecycle / activity

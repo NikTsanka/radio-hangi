@@ -134,7 +134,7 @@ fun RadioHangiApp(
         topBar = {
             CenterAlignedTopAppBar(
                 // Icons (back / Home / Lyrics / Equalizer / theme) adopt the album-art color.
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     navigationIconContentColor = accent,
                     actionIconContentColor = accent,
                 ),

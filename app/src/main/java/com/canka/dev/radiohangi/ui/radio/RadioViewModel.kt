@@ -146,8 +146,8 @@ class RadioViewModel(
                 val hasSong = parsed != null && parsed.hasArtist
                 RadioUiState(
                     current = Track(
-                        artist = if (hasSong) parsed!!.artist else item.artist.orEmpty(),
-                        song = if (hasSong) parsed!!.song else (item.title ?: "World Radio"),
+                        artist = if (hasSong) parsed.artist else item.artist.orEmpty(),
+                        song = if (hasSong) parsed.song else (item.title ?: "World Radio"),
                         // Art comes from the player metadata (Deezer cover resolved by the service,
                         // or the station favicon as a fallback).
                         coverUrl = item.artworkUri,
