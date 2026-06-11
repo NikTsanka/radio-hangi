@@ -69,7 +69,7 @@ private data class StationNowPlaying(
 data class PlaybackUiState(
     val state: PlaybackState = PlaybackState.Idle,
     val isPlaying: Boolean = false,
-    val volume: Float = 1f,
+    val volume: Float = AppConfig.DEFAULT_VOLUME,
     val isMuted: Boolean = false,
 )
 
@@ -168,7 +168,7 @@ class RadioViewModel(
 
     private var controller: MediaController? = null
     private var sleepJob: Job? = null
-    private var volumeBeforeMute: Float = 1f
+    private var volumeBeforeMute: Float = AppConfig.DEFAULT_VOLUME
 
     private val playerListener = object : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
@@ -318,7 +318,7 @@ class RadioViewModel(
             volumeBeforeMute = c.volume
             c.volume = 0f
         } else {
-            c.volume = volumeBeforeMute.takeIf { it > 0f } ?: 1f
+            c.volume = volumeBeforeMute.takeIf { it > 0f } ?: AppConfig.DEFAULT_VOLUME
         }
     }
 

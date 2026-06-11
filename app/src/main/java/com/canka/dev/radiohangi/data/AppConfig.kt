@@ -62,6 +62,9 @@ object AppConfig {
     /** Max stations pushed to the home-screen widget's quick-play row. */
     const val WIDGET_QUICK_SIZE = 4
 
+    /** Player volume applied on app start (the volume slider's initial position). */
+    const val DEFAULT_VOLUME = 0.8f
+
     // ---- Misc --------------------------------------------------------------------------
     const val SHARE_TEMPLATE = "Now listening to: %1\$s by %2\$s on Radio Hangi"
 }

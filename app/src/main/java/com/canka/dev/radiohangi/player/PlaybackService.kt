@@ -96,6 +96,9 @@ class PlaybackService : MediaSessionService() {
         player.audioSessionId = audioSessionId
         equalizerController.bind(audioSessionId)
 
+        // Start at the default volume so the slider sits at 80% on a fresh launch.
+        player.volume = AppConfig.DEFAULT_VOLUME
+
         // Preload the Main Radio (Zeno) stream so pressing play works immediately.
         player.setMediaItem(buildZenoMediaItem())
         player.prepare()
