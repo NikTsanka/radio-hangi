@@ -1,9 +1,24 @@
 package com.canka.dev.radiohangi.player
 
+import android.content.Context
 import android.media.audiofx.Equalizer
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+
+// Equalizer settings survive app restarts (enabled flag + selected preset).
+private val Context.equalizerDataStore by preferencesDataStore(name = "equalizer")
+private val EQ_ENABLED = booleanPreferencesKey("eq_enabled")
+private val EQ_PRESET = intPreferencesKey("eq_preset")
 
 /**
  * UI-facing snapshot of the equalizer. [available] is false on devices (and most emulators)
@@ -29,13 +44,41 @@ data class EqualizerState(
  * Desired enabled/preset are retained so they survive a session rebind. All effect calls are
  * guarded — a flaky AudioEffect implementation can throw, and that must never crash playback.
  */
-class EqualizerController {
+class EqualizerController(private val context: Context) {
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private var equalizer: Equalizer? = null
     private var sessionId: Int = 0
 
     private var desiredEnabled = false
     private var desiredPreset: Short = 0
+
+    init {
+        // Restore the persisted enabled flag + preset; if the effect is already bound
+        // (unlikely — playback starts after user interaction), re-apply on the spot.
+        scope.launch {
+            val prefs = context.equalizerDataStore.data.first()
+            desiredEnabled = prefs[EQ_ENABLED] ?: false
+            desiredPreset = (prefs[EQ_PRESET] ?: 0).toShort()
+            equalizer?.let { eq ->
+                runCatching {
+                    eq.enabled = desiredEnabled
+                    if (desiredEnabled && desiredPreset < eq.numberOfPresets) eq.usePreset(desiredPreset)
+                }
+                publish()
+            }
+        }
+    }
+
+    private fun persist() {
+        scope.launch {
+            context.equalizerDataStore.edit { prefs ->
+                prefs[EQ_ENABLED] = desiredEnabled
+                prefs[EQ_PRESET] = desiredPreset.toInt()
+            }
+        }
+    }
 
     private val _state = MutableStateFlow(EqualizerState())
     val state: StateFlow<EqualizerState> = _state.asStateFlow()
@@ -91,12 +134,14 @@ class EqualizerController {
     fun setEnabled(enabled: Boolean) {
         desiredEnabled = enabled
         equalizer?.let { runCatching { it.enabled = enabled } }
+        persist()
         publish()
     }
 
     fun usePreset(preset: Int) {
         desiredPreset = preset.toShort()
         equalizer?.let { runCatching { it.usePreset(preset.toShort()) } }
+        persist()
         publish()
     }
 

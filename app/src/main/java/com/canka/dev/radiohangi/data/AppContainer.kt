@@ -67,5 +67,5 @@ class AppContainer(context: Context) {
     val recentsRepository: RecentsRepository = RecentsRepository(context.applicationContext, json)
 
     // Audio equalizer bound to the playback session (PlaybackService wires the session id).
-    val equalizerController: EqualizerController = EqualizerController()
+    val equalizerController: EqualizerController = EqualizerController(context.applicationContext)
 }
