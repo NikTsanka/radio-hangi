@@ -14,6 +14,7 @@ import androidx.media3.session.SessionToken
 import com.canka.dev.radiohangi.RadioHangiApplication
 import com.canka.dev.radiohangi.data.AppConfig
 import com.canka.dev.radiohangi.data.repository.FavoritesRepository
+import com.canka.dev.radiohangi.data.repository.PlayerPrefsRepository
 import com.canka.dev.radiohangi.data.repository.RadioRepository
 import com.canka.dev.radiohangi.data.repository.RecentsRepository
 import com.canka.dev.radiohangi.domain.model.ConnectionStatus
@@ -89,6 +90,7 @@ class RadioViewModel(
     private val repository: RadioRepository,
     private val favoritesRepository: FavoritesRepository,
     private val recentsRepository: RecentsRepository,
+    private val playerPrefsRepository: PlayerPrefsRepository,
 ) : AndroidViewModel(application) {
 
     /** Quick-play stations for the Radio screen: recents first, then favorites not already shown. */
@@ -310,6 +312,7 @@ class RadioViewModel(
         val v = value.coerceIn(0f, 1f)
         controller?.volume = v
         if (v > 0f) volumeBeforeMute = v
+        persistVolume(v)
     }
 
     fun toggleMute() {
@@ -320,6 +323,11 @@ class RadioViewModel(
         } else {
             c.volume = volumeBeforeMute.takeIf { it > 0f } ?: AppConfig.DEFAULT_VOLUME
         }
+        persistVolume(c.volume)
+    }
+
+    private fun persistVolume(value: Float) {
+        viewModelScope.launch { playerPrefsRepository.saveVolume(value) }
     }
 
     // ---- Sleep timer ----
@@ -359,6 +367,7 @@ class RadioViewModel(
                     app.container.radioRepository,
                     app.container.favoritesRepository,
                     app.container.recentsRepository,
+                    app.container.playerPrefsRepository,
                 )
             }
         }

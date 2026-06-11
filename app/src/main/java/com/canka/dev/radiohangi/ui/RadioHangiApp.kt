@@ -257,7 +257,7 @@ private fun NavHostController.navigateToTab(dest: Destination) {
  * tint never blends into the background — bright covers get darkened on a light theme, dark
  * covers get lightened on a dark theme, while the hue/saturation (the album's identity) stays.
  */
-private fun readableAccent(color: Color, darkTheme: Boolean): Color {
+internal fun readableAccent(color: Color, darkTheme: Boolean): Color {
     val hsl = FloatArray(3)
     ColorUtils.colorToHSL(color.toArgb(), hsl)
     hsl[2] = if (darkTheme) hsl[2].coerceIn(0.62f, 0.85f) else hsl[2].coerceIn(0.20f, 0.45f)

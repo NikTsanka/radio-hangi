@@ -29,6 +29,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -54,6 +55,9 @@ class PlaybackService : MediaSessionService() {
     }
     private val equalizerController by lazy {
         (application as RadioHangiApplication).container.equalizerController
+    }
+    private val playerPrefsRepository by lazy {
+        (application as RadioHangiApplication).container.playerPrefsRepository
     }
 
     // Current World station's favicon (art fallback) + last applied ICY title; tracked so we can
@@ -96,8 +100,9 @@ class PlaybackService : MediaSessionService() {
         player.audioSessionId = audioSessionId
         equalizerController.bind(audioSessionId)
 
-        // Start at the default volume so the slider sits at 80% on a fresh launch.
+        // Restore the last chosen volume (defaults to 80% on a first-ever launch).
         player.volume = AppConfig.DEFAULT_VOLUME
+        scope.launch { player.volume = playerPrefsRepository.volume.first() }
 
         // Preload the Main Radio (Zeno) stream so pressing play works immediately.
         player.setMediaItem(buildZenoMediaItem())

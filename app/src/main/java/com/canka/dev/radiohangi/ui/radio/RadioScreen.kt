@@ -46,11 +46,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.canka.dev.radiohangi.ui.readableAccent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.canka.dev.radiohangi.data.AppConfig
@@ -74,6 +77,13 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
     val haptics = LocalHapticFeedback.current
 
     val current = ui.current
+
+    // Same album-art accent the app bar / bottom nav icons use, for the volume icon.
+    val darkTheme = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val accent = readableAccent(
+        rememberDominantColor(current?.coverUrl, fallback = MaterialTheme.colorScheme.primary),
+        darkTheme,
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         AmbientBackground(coverUrl = current?.coverUrl)
@@ -141,6 +151,7 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
                 hasError = playback.state == PlaybackState.Error,
                 volume = playback.volume,
                 isMuted = playback.isMuted,
+                accent = accent,
                 // Favorite the currently-playing World station (hidden for the Zeno home stream).
                 showFavorite = currentStation != null,
                 isFavorite = currentStation?.uuid in favoriteUuids,
@@ -176,6 +187,7 @@ private fun PlayerControls(
     hasError: Boolean,
     volume: Float,
     isMuted: Boolean,
+    accent: Color,
     showFavorite: Boolean,
     isFavorite: Boolean,
     onPlayPause: () -> Unit,
@@ -237,6 +249,7 @@ private fun PlayerControls(
                     imageVector = if (isMuted) Icons.AutoMirrored.Filled.VolumeOff
                     else Icons.AutoMirrored.Filled.VolumeUp,
                     contentDescription = if (isMuted) "Unmute" else "Mute",
+                    tint = accent,
                 )
             }
             Slider(

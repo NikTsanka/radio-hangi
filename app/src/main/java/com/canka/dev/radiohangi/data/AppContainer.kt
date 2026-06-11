@@ -6,6 +6,7 @@ import com.canka.dev.radiohangi.data.remote.LyricsApi
 import com.canka.dev.radiohangi.data.remote.RadioBrowserApi
 import com.canka.dev.radiohangi.data.remote.ZenoMetadataSource
 import com.canka.dev.radiohangi.data.repository.FavoritesRepository
+import com.canka.dev.radiohangi.data.repository.PlayerPrefsRepository
 import com.canka.dev.radiohangi.data.repository.RadioRepository
 import com.canka.dev.radiohangi.data.repository.RecentsRepository
 import com.canka.dev.radiohangi.data.repository.WorldRepository
@@ -65,6 +66,9 @@ class AppContainer(context: Context) {
     val worldRepository: WorldRepository = WorldRepository(radioBrowserApi)
     val favoritesRepository: FavoritesRepository = FavoritesRepository(context.applicationContext, json)
     val recentsRepository: RecentsRepository = RecentsRepository(context.applicationContext, json)
+
+    // Persisted player preferences (last chosen volume).
+    val playerPrefsRepository: PlayerPrefsRepository = PlayerPrefsRepository(context.applicationContext)
 
     // Audio equalizer bound to the playback session (PlaybackService wires the session id).
     val equalizerController: EqualizerController = EqualizerController(context.applicationContext)
