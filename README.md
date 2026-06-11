@@ -8,10 +8,11 @@ A native Android radio app built with Jetpack Compose and Media3. It streams the
     <td align="center"><img src="screenshots/radio.png" width="210"/><br/><sub>Home stream + now playing</sub></td>
     <td align="center"><img src="screenshots/world.png" width="210"/><br/><sub>World Radio + mini-player</sub></td>
     <td align="center"><img src="screenshots/lyrics.png" width="210"/><br/><sub>Lyrics</sub></td>
+    <td align="center"><img src="screenshots/equalizer.png" width="210"/><br/><sub>Equalizer</sub></td>
   </tr>
 </table>
 
-> Screenshots captured on a Pixel 8 Pro (Android 16) emulator.
+> Screenshots captured on a Pixel 6 (Android 13) emulator.
 
 ## Features
 
