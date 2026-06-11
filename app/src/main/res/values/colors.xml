@@ -2,4 +2,6 @@
 <resources>
     <!-- Splash screen: dark backdrop behind the vinyl record. -->
     <color name="splash_bg">#FF0E0E10</color>
+    <!-- Launcher adaptive-icon background: the cover art's cream paper tone. -->
+    <color name="ic_launcher_background">#FFF1ECE2</color>
 </resources>
