@@ -17,3 +17,6 @@ local.properties
 
 # Built APKs (for manual device testing)
 *.apk
+
+# Release signing secrets (keystore lives outside the repo)
+/keystore.properties
