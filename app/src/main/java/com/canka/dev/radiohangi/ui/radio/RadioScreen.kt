@@ -1,6 +1,7 @@
 package com.canka.dev.radiohangi.ui.radio
 
 import android.content.Intent
+import androidx.core.net.toUri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -334,7 +335,7 @@ private fun findCurrentSong(context: android.content.Context, track: Track?) {
         .ifBlank { return }
     val url = "https://www.youtube.com/results?search_query=" + android.net.Uri.encode(query)
     runCatching {
-        context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+        context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
     }
 }
 
