@@ -8,10 +8,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -85,13 +85,19 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
         darkTheme,
     )
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         AmbientBackground(coverUrl = current?.coverUrl)
+
+        // Cap disc size so it never crowds the controls on small phones.
+        // On landscape/TV (wide, short) the height cap kicks in; on tall portrait phones
+        // the width cap applies instead — both prevent overflow.
+        val discSize = minOf(maxWidth * 0.82f, maxHeight * 0.44f)
+        val isCompact = maxHeight < 580.dp
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 12.dp),
+                .padding(horizontal = 24.dp, vertical = if (isCompact) 6.dp else 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // ---- FIXED TOP: quick play, now-playing art + title ----
@@ -115,15 +121,15 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
                 )
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(if (isCompact) 6.dp else 12.dp))
 
             SpinningDisc(
                 coverUrl = current?.coverUrl,
                 isPlaying = playback.isPlaying,
-                modifier = Modifier.fillMaxWidth(0.82f).aspectRatio(1f),
+                modifier = Modifier.size(discSize),
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(if (isCompact) 8.dp else 16.dp))
 
             MarqueeText(
                 text = current?.song ?: "Radio Hangi",
@@ -143,7 +149,7 @@ fun RadioScreen(viewModel: RadioViewModel = viewModel(factory = RadioViewModel.F
 
             // ---- FIXED BOTTOM: equalizer, transport + volume, sleep + share ----
             EqualizerBars(playing = playback.isPlaying)
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(if (isCompact) 4.dp else 8.dp))
 
             PlayerControls(
                 isPlaying = playback.isPlaying,
